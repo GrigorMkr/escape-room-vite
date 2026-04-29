@@ -1,3 +1,4 @@
+import {memo} from 'react';
 import QuestCard, {type Quest} from './quest-card';
 
 type QuestListProps = {
@@ -12,5 +13,6 @@ const QuestList = ({quests}: QuestListProps) => (
   </div>
 );
 
-export default QuestList;
+const MemoQuestList = memo(QuestList);
+export default MemoQuestList;
 

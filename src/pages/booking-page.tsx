@@ -1,4 +1,4 @@
-import {type FocusEvent, useEffect, useMemo, useState} from 'react';
+import {type BaseSyntheticEvent, type FocusEvent, useCallback, useEffect, useMemo, useState} from 'react';
 import {Controller, useForm} from 'react-hook-form';
 import {useNavigate, useParams} from 'react-router-dom';
 import {type BookingPlace, type BookingDay} from '../types/booking';
@@ -61,6 +61,10 @@ const BookingPage = () => {
   const [places, setPlaces] = useState<BookingPlace[]>([]);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string>('');
 
+  const handleSelectPlace = useCallback((placeId: string) => {
+    setSelectedPlaceId(placeId);
+  }, []);
+
   const selectedPlace = useMemo(
     () => places.find((p) => p.id === selectedPlaceId) ?? places[0],
     [places, selectedPlaceId]
@@ -99,6 +103,13 @@ const BookingPage = () => {
       agreement: false,
     },
   });
+
+  const formErrors = useMemo(() => ([
+    ...(submitError ? [submitError] : []),
+    ...Object.values(errors)
+      .map((e) => e?.message)
+      .filter((m): m is string => Boolean(m)),
+  ]), [errors, submitError]);
 
   useEffect(() => {
     if (!questId) {
@@ -165,7 +176,7 @@ const BookingPage = () => {
     setValue('person', minPeople);
   }, [minPeople, setValue]);
 
-  const onSubmit = async (values: BookingFormValues) => {
+  const onSubmit = useCallback(async (values: BookingFormValues) => {
     setSubmitError('');
     if (!quest || !questId || !selectedPlace) {
       return;
@@ -199,7 +210,11 @@ const BookingPage = () => {
     } catch (e) {
       setSubmitError(e instanceof Error ? e.message : 'Не удалось отправить заявку.');
     }
-  };
+  }, [navigate, quest, questId, selectedPlace]);
+
+  const handleFormSubmit = useCallback((evt: BaseSyntheticEvent) => {
+    void handleSubmit(onSubmit)(evt);
+  }, [handleSubmit, onSubmit]);
 
   if (!quest) {
     return (
@@ -225,9 +240,7 @@ const BookingPage = () => {
               <BookingMap
                 places={places}
                 selectedPlaceId={selectedPlaceId}
-                onSelectPlace={(placeId) => {
-                  setSelectedPlaceId(placeId);
-                }}
+                onSelectPlace={handleSelectPlace}
               />
             </div>
             <p className="booking-map__address">
@@ -241,17 +254,10 @@ const BookingPage = () => {
             className="booking-form"
             action="#"
             method="post"
-            onSubmit={(evt) => {
-              void handleSubmit(onSubmit)(evt);
-            }}
+            onSubmit={handleFormSubmit}
           >
             <ErrorBox
-              errors={[
-                ...(submitError ? [submitError] : []),
-                ...Object.values(errors)
-                  .map((e) => e?.message)
-                  .filter((m): m is string => Boolean(m)),
-              ]}
+              errors={formErrors}
               ariaLive="polite"
             />
 

@@ -1,5 +1,6 @@
 import {useEffect, useMemo, useRef, useState} from 'react';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import type {BookingPlace} from '../types/booking';
 import {MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM, PIN_ICON_ANCHOR, PIN_ICON_SIZE} from '../constants/ui';
 
@@ -9,15 +10,17 @@ type BookingMapProps = {
   onSelectPlace: (placeId: string) => void;
 };
 
-const createMarkerIcon = (active: boolean): L.Icon => (
-  L.icon({
-    iconUrl: active
-      ? `${import.meta.env.BASE_URL}img/svg/pin-active.svg`
-      : `${import.meta.env.BASE_URL}img/svg/pin-default.svg`,
-    iconSize: PIN_ICON_SIZE,
-    iconAnchor: PIN_ICON_ANCHOR,
-  })
-);
+const defaultMarkerIcon = L.icon({
+  iconUrl: `${import.meta.env.BASE_URL}img/svg/pin-default.svg`,
+  iconSize: PIN_ICON_SIZE,
+  iconAnchor: PIN_ICON_ANCHOR,
+});
+
+const activeMarkerIcon = L.icon({
+  iconUrl: `${import.meta.env.BASE_URL}img/svg/pin-active.svg`,
+  iconSize: PIN_ICON_SIZE,
+  iconAnchor: PIN_ICON_ANCHOR,
+});
 
 const normalizeLatLng = (coords: [number, number] | undefined): [number, number] | null => {
   if (!coords) {
@@ -82,13 +85,12 @@ const BookingMap = ({
       setMapInitError('');
     }
 
-    const nextCenter = selectedPlace?.coords ?? MAP_DEFAULT_CENTER;
-
     const map = (() => {
       if (mapRef.current) {
         return mapRef.current;
       }
 
+      const nextCenter = selectedPlace?.coords ?? MAP_DEFAULT_CENTER;
       const container = mapContainerRef.current as unknown as {_leaflet_id?: unknown};
       if (container._leaflet_id) {
         delete container._leaflet_id;
@@ -111,39 +113,57 @@ const BookingMap = ({
       tileLayerRef.current.addTo(map);
     }
 
-    map.setView(nextCenter as L.LatLngExpression, map.getZoom() || MAP_DEFAULT_ZOOM, {animate: false});
-    setTimeout(() => map.invalidateSize(), 50);
-
     if (!resizeObserverRef.current && 'ResizeObserver' in window) {
       resizeObserverRef.current = new ResizeObserver(() => {
         map.invalidateSize();
       });
       resizeObserverRef.current.observe(mapContainerRef.current);
     }
+  }, [mapInitError, selectedPlace?.coords]);
 
-    markersRef.current.forEach((marker) => marker.remove());
-    markersRef.current.clear();
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) {
+      return;
+    }
 
-    const createdMarkers: L.Marker[] = [];
+    const nextCenter = selectedPlace?.coords ?? MAP_DEFAULT_CENTER;
+    map.setView(nextCenter as L.LatLngExpression, map.getZoom() || MAP_DEFAULT_ZOOM, {animate: false});
+    setTimeout(() => map.invalidateSize(), 50);
+  }, [selectedPlace?.coords]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) {
+      return;
+    }
+
+    const nextPlaceIds = new Set(placesWithCoords.map((p) => p.place.id));
+    markersRef.current.forEach((marker, placeId) => {
+      if (!nextPlaceIds.has(placeId)) {
+        marker.remove();
+        markersRef.current.delete(placeId);
+      }
+    });
+
     placesWithCoords.forEach(({place, coords}) => {
+      if (markersRef.current.has(place.id)) {
+        return;
+      }
+
       const marker = L.marker(coords as L.LatLngExpression, {
-        icon: createMarkerIcon(place.id === selectedPlaceId),
+        icon: place.id === selectedPlaceId ? activeMarkerIcon : defaultMarkerIcon,
       });
 
       marker.on('click', () => onSelectPlace(place.id));
       marker.addTo(map);
       markersRef.current.set(place.id, marker);
-      createdMarkers.push(marker);
     });
-
-    return () => {
-      createdMarkers.forEach((marker) => marker.remove());
-    };
-  }, [placesWithCoords, selectedPlace?.coords, selectedPlaceId, onSelectPlace, mapInitError]);
+  }, [onSelectPlace, placesWithCoords, selectedPlaceId]);
 
   useEffect(() => {
     markersRef.current.forEach((marker, placeId) => {
-      marker.setIcon(createMarkerIcon(placeId === selectedPlaceId));
+      marker.setIcon(placeId === selectedPlaceId ? activeMarkerIcon : defaultMarkerIcon);
     });
   }, [selectedPlaceId]);
 

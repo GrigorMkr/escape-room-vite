@@ -1,5 +1,6 @@
 import {useEffect, useRef} from 'react';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import {MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM, PIN_ICON_ANCHOR, PIN_ICON_SIZE} from '../constants/ui';
 
 const ContactsMap = () => {

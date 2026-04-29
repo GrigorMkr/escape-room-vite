@@ -1,3 +1,4 @@
+import {memo} from 'react';
 import {Link} from 'react-router-dom';
 import {QUEST_CARD_IMAGE_SIZE} from '../constants/ui';
 
@@ -79,7 +80,8 @@ const QuestCard = ({quest}: QuestCardProps) => {
   );
 };
 
-export default QuestCard;
+const MemoQuestCard = memo(QuestCard);
+export default MemoQuestCard;
 
 export type {Quest};
 

@@ -1,3 +1,4 @@
+import {type ChangeEvent, useCallback, useMemo} from 'react';
 import type {BookingDay, BookingSlot} from '../types/booking';
 
 type BookingDaySlotsProps = {
@@ -16,13 +17,21 @@ const BookingDaySlots = ({
   selectedSlotId,
   slots,
   onChange,
-}: BookingDaySlotsProps) => (
-  <fieldset className="booking-form__date-section">
-    <legend className="booking-form__date-title">{title}</legend>
-    <div className="booking-form__date-inner-wrapper">
-      {slots
-        .filter((s) => s.day === day)
-        .map((slot) => (
+}: BookingDaySlotsProps) => {
+  const daySlots = useMemo(
+    () => slots.filter((s) => s.day === day),
+    [day, slots]
+  );
+
+  const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    onChange(e.currentTarget.value);
+  }, [onChange]);
+
+  return (
+    <fieldset className="booking-form__date-section">
+      <legend className="booking-form__date-title">{title}</legend>
+      <div className="booking-form__date-inner-wrapper">
+        {daySlots.map((slot) => (
           <label key={slot.id} className="custom-radio booking-form__date">
             <input
               type="radio"
@@ -31,13 +40,14 @@ const BookingDaySlots = ({
               value={slot.id}
               checked={selectedSlotId === slot.id}
               disabled={!slot.isAvailable}
-              onChange={() => onChange(slot.id)}
+              onChange={handleChange}
             />
             <span className="custom-radio__label">{slot.time}</span>
           </label>
         ))}
-    </div>
-  </fieldset>
-);
+      </div>
+    </fieldset>
+  );
+};
 
 export default BookingDaySlots;
