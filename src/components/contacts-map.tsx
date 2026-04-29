@@ -19,27 +19,12 @@ const ContactsMap = () => {
 
     const map = L.map(mapRef.current).setView(MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM);
 
-    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',
-    });
-    osm.addTo(map);
-
-    // Fallback: if tiles are blocked/unavailable, try 2GIS.
-    let tileErrors = 0;
-    const onTileError = () => {
-      tileErrors += 1;
-      if (tileErrors >= 8) {
-        map.removeLayer(osm);
-        L.tileLayer('http://tile2.maps.2gis.com/tiles?x={x}&y={y}&z={z}', {
-          attribution: '&copy; 2GIS',
-        }).addTo(map);
-        osm.off('tileerror', onTileError);
-      }
-    };
-    osm.on('tileerror', onTileError);
+    }).addTo(map);
 
     const markerIcon = L.icon({
-      iconUrl: '/img/svg/pin-default.svg',
+      iconUrl: `${import.meta.env.BASE_URL}img/svg/pin-default.svg`,
       iconSize: PIN_ICON_SIZE,
       iconAnchor: PIN_ICON_ANCHOR,
     });

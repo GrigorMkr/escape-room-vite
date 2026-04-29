@@ -11,7 +11,7 @@ const Header = ({isAuthorized, onLogout}: HeaderProps) => (
     <div className="container container--size-l">
       <Link className="logo header__logo" to="/" aria-label="Перейти на Главную">
         <svg width={LOGO_SIZE.width} height={LOGO_SIZE.height} aria-hidden="true">
-          <use xlinkHref="/img/sprite.svg#logo" />
+          <use xlinkHref={`${import.meta.env.BASE_URL}img/sprite.svg#logo`} />
         </svg>
       </Link>
 

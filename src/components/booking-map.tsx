@@ -11,7 +11,9 @@ type BookingMapProps = {
 
 const createMarkerIcon = (active: boolean): L.Icon => (
   L.icon({
-    iconUrl: active ? '/img/svg/pin-active.svg' : '/img/svg/pin-default.svg',
+    iconUrl: active
+      ? `${import.meta.env.BASE_URL}img/svg/pin-active.svg`
+      : `${import.meta.env.BASE_URL}img/svg/pin-default.svg`,
     iconSize: PIN_ICON_SIZE,
     iconAnchor: PIN_ICON_ANCHOR,
   })

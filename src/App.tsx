@@ -64,10 +64,10 @@ const App = () => {
               <li className="socials__item">
                 <a className="socials__link" href="#" aria-label="Skype">
                   <svg className="socials__icon socials__icon--default" width={SOCIAL_ICON_SIZE} height={SOCIAL_ICON_SIZE} aria-hidden="true">
-                    <use xlinkHref="/img/sprite.svg#icon-skype-default" />
+                    <use xlinkHref={`${import.meta.env.BASE_URL}img/sprite.svg#icon-skype-default`} />
                   </svg>
                   <svg className="socials__icon socials__icon--interactive" width={SOCIAL_ICON_SIZE} height={SOCIAL_ICON_SIZE} aria-hidden="true">
-                    <use xlinkHref="/img/sprite.svg#icon-skype-interactive" />
+                    <use xlinkHref={`${import.meta.env.BASE_URL}img/sprite.svg#icon-skype-interactive`} />
                   </svg>
                 </a>
               </li>
@@ -75,10 +75,10 @@ const App = () => {
               <li className="socials__item">
                 <a className="socials__link" href="#" aria-label="ВКонтакте">
                   <svg className="socials__icon socials__icon--default" width={SOCIAL_ICON_SIZE} height={SOCIAL_ICON_SIZE} aria-hidden="true">
-                    <use xlinkHref="/img/sprite.svg#icon-vk-default" />
+                    <use xlinkHref={`${import.meta.env.BASE_URL}img/sprite.svg#icon-vk-default`} />
                   </svg>
                   <svg className="socials__icon socials__icon--interactive" width={SOCIAL_ICON_SIZE} height={SOCIAL_ICON_SIZE} aria-hidden="true">
-                    <use xlinkHref="/img/sprite.svg#icon-vk-interactive" />
+                    <use xlinkHref={`${import.meta.env.BASE_URL}img/sprite.svg#icon-vk-interactive`} />
                   </svg>
                 </a>
               </li>

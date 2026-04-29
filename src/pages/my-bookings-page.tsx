@@ -96,13 +96,13 @@ const MyBookingsPage = () => {
                   <ul className="tags quest-card__tags">
                     <li className="tags__item">
                       <svg width="11" height="14" aria-hidden="true">
-                        <use xlinkHref="/img/sprite.svg#icon-person" />
+                        <use xlinkHref={`${import.meta.env.BASE_URL}img/sprite.svg#icon-person`} />
                       </svg>
                       {booking.peopleCount} чел
                     </li>
                     <li className="tags__item">
                       <svg width="14" height="14" aria-hidden="true">
-                        <use xlinkHref="/img/sprite.svg#icon-level" />
+                        <use xlinkHref={`${import.meta.env.BASE_URL}img/sprite.svg#icon-level`} />
                       </svg>
                       {getDifficultyLabel(booking.quest.level)}
                     </li>

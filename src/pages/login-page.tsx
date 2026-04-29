@@ -73,11 +73,11 @@ const LoginPage = ({onLogin, isAuthorized}: LoginPageProps) => {
         <picture>
           <source
             type="image/webp"
-            srcSet="/img/content/maniac/maniac-size-m.webp, /img/content/maniac/maniac-size-m@2x.webp 2x"
+            srcSet={`${import.meta.env.BASE_URL}img/content/maniac/maniac-size-m.webp, ${import.meta.env.BASE_URL}img/content/maniac/maniac-size-m@2x.webp 2x`}
           />
           <img
-            src="/img/content/maniac/maniac-size-m.jpg"
-            srcSet="/img/content/maniac/maniac-size-m@2x.jpg 2x"
+            src={`${import.meta.env.BASE_URL}img/content/maniac/maniac-size-m.jpg`}
+            srcSet={`${import.meta.env.BASE_URL}img/content/maniac/maniac-size-m@2x.jpg 2x`}
             width={HERO_IMAGE_SIZE.width}
             height={HERO_IMAGE_SIZE.height}
             alt=""
