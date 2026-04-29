@@ -1,0 +1,30 @@
+.form-error{
+  margin: 16px 0;
+  padding: 14px 16px;
+  color: #fff;
+  background: rgba(207, 68, 68, 0.12);
+  border: 1px solid rgba(207, 68, 68, 0.65);
+  border-radius: 6px;
+}
+
+.form-error ul{
+  margin: 0;
+  padding-left: 18px;
+}
+
+.form-error li{
+  margin: 4px 0;
+}
+
+/* Leaflet tiles are <img>. Global `img { max-width: 100% }` breaks tile rendering. */
+.leaflet-container img,
+.leaflet-container video {
+  max-width: none !important;
+  height: auto;
+}
+
+.leaflet-container .leaflet-tile {
+  max-width: none !important;
+  max-height: none !important;
+}
+
