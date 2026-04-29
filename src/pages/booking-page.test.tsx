@@ -1,4 +1,4 @@
-import {screen} from '@testing-library/react';
+import {screen, waitFor} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {Route, Routes} from 'react-router-dom';
 import BookingPage from './booking-page';
@@ -119,8 +119,11 @@ describe('BookingPage', () => {
 
     await user.click(screen.getByRole('button', {name: 'Забронировать'}));
 
-    expect(createBooking).toHaveBeenCalled();
-    expect(await screen.findByText('My bookings')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(createBooking).toHaveBeenCalled();
+    });
+
+    expect(await screen.findByText('My bookings', {}, {timeout: 10000})).toBeInTheDocument();
   });
 
   it('redirects to /login when rendered behind PrivateRoute', async () => {

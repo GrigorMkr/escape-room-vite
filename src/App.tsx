@@ -1,4 +1,4 @@
-import {Suspense, lazy, useCallback, useEffect} from 'react';
+import {Suspense, lazy, useCallback, useEffect, useRef} from 'react';
 import {Navigate, Route, Routes} from 'react-router-dom';
 import Header from './components/header';
 import PrivateRoute from './components/private-route';
@@ -17,9 +17,14 @@ const NotFoundPage = lazy(async () => await import('./pages/not-found-page'));
 const App = () => {
   const dispatch = useAppDispatch();
   const isAuthorized = useAppSelector((state) => state.auth.isAuthorized);
+  const didCheckAuthRef = useRef(false);
 
   useEffect(() => {
+    if (didCheckAuthRef.current) {
+      return;
+    }
     if (isAuthorized) {
+      didCheckAuthRef.current = true;
       void dispatch(checkAuthAction());
     }
   }, [dispatch, isAuthorized]);

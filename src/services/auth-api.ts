@@ -30,6 +30,7 @@ const checkAuth = async (): Promise<boolean> => {
     return true;
   } catch (err) {
     if (err instanceof ApiError) {
+      localStorage.removeItem(TOKEN_STORAGE_KEY);
       return false;
     }
     return false;
