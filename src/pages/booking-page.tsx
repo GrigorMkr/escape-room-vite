@@ -17,13 +17,11 @@ type BookingFormValues = {
   agreement: boolean;
 };
 
-// Required format: +7 (000) 000-00-00
 const phoneRegex = /^\+7\s\(\d{3}\)\s\d{3}-\d{2}-\d{2}$/;
 const nameRegex = /^[A-Za-zА-Яа-яЁё' -]{1,15}$/;
 
 const formatPhoneDisplay = (value: string): string => {
   const digits = value.replace(/\D/g, '');
-  // Accept input like "+79871234567" or "89871234567" and format to "+7 (987) 123-45-67"
   const normalized = digits.startsWith('8') ? `7${digits.slice(1)}` : digits;
   if (!normalized.startsWith('7') || normalized.length !== 11) {
     return value;

@@ -31,8 +31,6 @@ const normalizeLatLng = (coords: [number, number] | undefined): [number, number]
     return null;
   }
 
-  // If the API accidentally returns [lng, lat] with a longitude outside latitude range,
-  // try swapping to [lat, lng].
   const asIsValid = Math.abs(a) <= 90 && Math.abs(b) <= 180;
   if (asIsValid) {
     return [a, b];
@@ -77,7 +75,6 @@ const BookingMap = ({
     const rect = mapContainerRef.current.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) {
       setMapInitError('Контейнер карты имеет нулевой размер. Проверьте стили блока карты.');
-      // Retry after layout settles.
       setTimeout(() => {
         mapRef.current?.invalidateSize();
       }, 100);
@@ -92,8 +89,6 @@ const BookingMap = ({
         return mapRef.current;
       }
 
-      // React.StrictMode mounts effects twice in dev.
-      // Leaflet throws "Map container is already initialized" if the DOM node still has _leaflet_id.
       const container = mapContainerRef.current as unknown as {_leaflet_id?: unknown};
       if (container._leaflet_id) {
         delete container._leaflet_id;
@@ -116,12 +111,9 @@ const BookingMap = ({
       tileLayerRef.current.addTo(map);
     }
 
-    // When the map is rendered inside a tab/hidden container, Leaflet needs a size recalculation.
-    // Doing it on each update keeps the map visible when the container becomes displayed.
     map.setView(nextCenter as L.LatLngExpression, map.getZoom() || MAP_DEFAULT_ZOOM, {animate: false});
     setTimeout(() => map.invalidateSize(), 50);
 
-    // Ensure the map becomes visible after layout changes (e.g. fonts/styles load, container resizes).
     if (!resizeObserverRef.current && 'ResizeObserver' in window) {
       resizeObserverRef.current = new ResizeObserver(() => {
         map.invalidateSize();
@@ -134,18 +126,14 @@ const BookingMap = ({
 
     const createdMarkers: L.Marker[] = [];
     placesWithCoords.forEach(({place, coords}) => {
-      try {
-        const marker = L.marker(coords as L.LatLngExpression, {
-          icon: createMarkerIcon(place.id === selectedPlaceId),
-        });
+      const marker = L.marker(coords as L.LatLngExpression, {
+        icon: createMarkerIcon(place.id === selectedPlaceId),
+      });
 
-        marker.on('click', () => onSelectPlace(place.id));
-        marker.addTo(map);
-        markersRef.current.set(place.id, marker);
-        createdMarkers.push(marker);
-      } catch {
-        // Skip invalid marker coordinates without breaking the map.
-      }
+      marker.on('click', () => onSelectPlace(place.id));
+      marker.addTo(map);
+      markersRef.current.set(place.id, marker);
+      createdMarkers.push(marker);
     });
 
     return () => {

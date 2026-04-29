@@ -10,8 +10,6 @@ const ContactsMap = () => {
       return;
     }
 
-    // React.StrictMode mounts effects twice in dev.
-    // Leaflet throws "Map container is already initialized" if the DOM node still has _leaflet_id.
     const container = mapRef.current as unknown as {_leaflet_id?: unknown};
     if (container._leaflet_id) {
       delete container._leaflet_id;
