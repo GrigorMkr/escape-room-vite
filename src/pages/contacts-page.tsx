@@ -1,7 +1,23 @@
 import ContactsMap from '../components/contacts-map';
+import {HERO_IMAGE_SIZE} from '../constants/ui';
 
 const ContactsPage = () => (
   <main className="page-content decorated-page">
+    <div className="decorated-page__decor" aria-hidden="true">
+      <picture>
+        <source
+          type="image/webp"
+          srcSet={`${import.meta.env.BASE_URL}img/content/maniac/maniac-bg-size-m.webp, ${import.meta.env.BASE_URL}img/content/maniac/maniac-bg-size-m@2x.webp 2x`}
+        />
+        <img
+          src={`${import.meta.env.BASE_URL}img/content/maniac/maniac-bg-size-m.jpg`}
+          srcSet={`${import.meta.env.BASE_URL}img/content/maniac/maniac-bg-size-m@2x.jpg 2x`}
+          width={HERO_IMAGE_SIZE.width}
+          height={HERO_IMAGE_SIZE.height}
+          alt=""
+        />
+      </picture>
+    </div>
     <div className="container">
       <div className="page-content__title-wrapper page-content__title-wrapper--underlined">
         <p className="subtitle page-content__subtitle">квесты в Санкт-Петербурге</p>

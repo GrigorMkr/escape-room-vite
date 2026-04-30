@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react';
 import {Link} from 'react-router-dom';
 import ErrorBox from '../components/error-box';
-import {QUEST_CARD_IMAGE_SIZE} from '../constants/ui';
+import {HERO_IMAGE_SIZE, QUEST_CARD_IMAGE_SIZE} from '../constants/ui';
 import {cancelBooking, getMyBookings, type BookingRecord} from '../services/bookings-api';
 
 const getDifficultyLabel = (difficulty: 'easy' | 'medium' | 'hard'): string => {
@@ -59,6 +59,21 @@ const MyBookingsPage = () => {
 
   return (
     <main className="page-content decorated-page">
+      <div className="decorated-page__decor" aria-hidden="true">
+        <picture>
+          <source
+            type="image/webp"
+            srcSet={`${import.meta.env.BASE_URL}img/content/maniac/maniac-bg-size-m.webp, ${import.meta.env.BASE_URL}img/content/maniac/maniac-bg-size-m@2x.webp 2x`}
+          />
+          <img
+            src={`${import.meta.env.BASE_URL}img/content/maniac/maniac-bg-size-m.jpg`}
+            srcSet={`${import.meta.env.BASE_URL}img/content/maniac/maniac-bg-size-m@2x.jpg 2x`}
+            width={HERO_IMAGE_SIZE.width}
+            height={HERO_IMAGE_SIZE.height}
+            alt=""
+          />
+        </picture>
+      </div>
       <div className="container">
         <div className="page-content__title-wrapper">
           <h1 className="title title--size-m">Мои бронирования</h1>

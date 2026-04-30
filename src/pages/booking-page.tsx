@@ -7,6 +7,7 @@ import BookingMap from '../components/booking-map';
 import ErrorBox from '../components/error-box';
 import {createBooking, getQuestBookingPlaces} from '../services/bookings-api';
 import {getQuest, type QuestDetailResponse} from '../services/quests-api';
+import {HERO_IMAGE_SIZE} from '../constants/ui';
 
 type BookingFormValues = {
   name: string;
@@ -228,12 +229,29 @@ const BookingPage = () => {
 
   return (
     <main className="page-content decorated-page">
-      <div className="page-content__item">
-        <div className="container container--size-s">
-          <div className="page-content__title-wrapper">
-            <h1 className="subtitle subtitle--size-l page-content__subtitle">Бронирование квеста</h1>
-            <p className="title title--size-m title--uppercase page-content__title">{quest.title}</p>
-          </div>
+      <div className="decorated-page__decor" aria-hidden="true">
+        <picture>
+          <source
+            type="image/webp"
+            srcSet={`${import.meta.env.BASE_URL}img/content/maniac/maniac-bg-size-m.webp, ${import.meta.env.BASE_URL}img/content/maniac/maniac-bg-size-m@2x.webp 2x`}
+          />
+          <img
+            src={`${import.meta.env.BASE_URL}img/content/maniac/maniac-bg-size-m.jpg`}
+            srcSet={`${import.meta.env.BASE_URL}img/content/maniac/maniac-bg-size-m@2x.jpg 2x`}
+            width={HERO_IMAGE_SIZE.width}
+            height={HERO_IMAGE_SIZE.height}
+            alt=""
+          />
+        </picture>
+      </div>
+
+      <div className="container container--size-s">
+        <div className="page-content__title-wrapper">
+          <h1 className="subtitle subtitle--size-l page-content__subtitle">Бронирование квеста</h1>
+          <p className="title title--size-m title--uppercase page-content__title">{quest.title}</p>
+        </div>
+
+        <div className="page-content__item">
 
           <div className="booking-map">
             <div className="map">
