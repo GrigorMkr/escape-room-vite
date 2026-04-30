@@ -13,9 +13,18 @@ const Header = ({isAuthorized, onLogout}: HeaderProps) => {
     onLogout();
   }, [onLogout]);
 
-  const prefetchContacts = useMemo(() => prefetchOnce(async () => await import('../pages/contacts-page')), []);
-  const prefetchLogin = useMemo(() => prefetchOnce(async () => await import('../pages/login-page')), []);
-  const prefetchMyBookings = useMemo(() => prefetchOnce(async () => await import('../pages/my-bookings-page')), []);
+  const prefetchContacts = useMemo(
+    () => prefetchOnce(async () => await import('../pages/contacts-page')),
+    []
+  );
+  const prefetchLogin = useMemo(
+    () => prefetchOnce(async () => await import('../pages/login-page')),
+    []
+  );
+  const prefetchMyBookings = useMemo(
+    () => prefetchOnce(async () => await import('../pages/my-bookings-page')),
+    []
+  );
 
   return (
     <header className="header">
@@ -77,7 +86,9 @@ const Header = ({isAuthorized, onLogout}: HeaderProps) => {
               Вход
             </Link>
           )}
-          <a className="link header__side-item header__phone-link" href="tel:88003335599">8 (000) 111-11-11</a>
+          <a className="link header__side-item header__phone-link" href="tel:88003335599">
+            8 (000) 111-11-11
+          </a>
         </div>
       </div>
     </header>

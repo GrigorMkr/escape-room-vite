@@ -32,3 +32,18 @@ body {
   overflow-x: hidden;
 }
 
+.not-found-page{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.not-found-page__text{
+  margin: 0 0 24px;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
