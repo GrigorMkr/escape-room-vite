@@ -57,6 +57,7 @@ const BookingMap = ({
   const markersRef = useRef<Map<string, L.Marker>>(new Map());
   const tileLayerRef = useRef<L.TileLayer | null>(null);
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
+  const invalidateTimeoutRef = useRef<number | null>(null);
   const [mapInitError, setMapInitError] = useState<string>('');
 
   const placesWithCoords = useMemo(
@@ -129,7 +130,26 @@ const BookingMap = ({
 
     const nextCenter = selectedPlace?.coords ?? MAP_DEFAULT_CENTER;
     map.setView(nextCenter as L.LatLngExpression, map.getZoom() || MAP_DEFAULT_ZOOM, {animate: false});
-    setTimeout(() => map.invalidateSize(), 50);
+
+    if (invalidateTimeoutRef.current !== null) {
+      window.clearTimeout(invalidateTimeoutRef.current);
+    }
+
+    invalidateTimeoutRef.current = window.setTimeout(() => {
+      const container = mapContainerRef.current;
+      const stillMounted = Boolean(container && container.isConnected);
+      if (!stillMounted) {
+        return;
+      }
+      if (!mapRef.current) {
+        return;
+      }
+      try {
+        mapRef.current.invalidateSize();
+      } catch (e) {
+        void e;
+      }
+    }, 50);
   }, [selectedPlace?.coords]);
 
   useEffect(() => {
@@ -168,6 +188,10 @@ const BookingMap = ({
   }, [selectedPlaceId]);
 
   useEffect(() => () => {
+    if (invalidateTimeoutRef.current !== null) {
+      window.clearTimeout(invalidateTimeoutRef.current);
+      invalidateTimeoutRef.current = null;
+    }
     const markersToRemove = Array.from(markersRef.current.values());
     markersToRemove.forEach((marker) => marker.remove());
     resizeObserverRef.current?.disconnect();
