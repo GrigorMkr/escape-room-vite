@@ -34,14 +34,26 @@ const MyBookingsPage = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    let active = true;
+
     void (async () => {
       try {
         const list = await getMyBookings();
+        if (!active) {
+          return;
+        }
         setBookings(list);
       } catch (err) {
+        if (!active) {
+          return;
+        }
         setError(err instanceof Error ? err.message : 'Не удалось загрузить бронирования.');
       }
     })();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const handleCancel = async (id: string) => {
