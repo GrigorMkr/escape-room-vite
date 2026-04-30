@@ -1,4 +1,4 @@
-import {screen} from '@testing-library/react';
+import {act, screen} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import HomePage from './home-page';
 import {renderWithProviders} from '../test-utils/render';
@@ -43,22 +43,28 @@ describe('HomePage', () => {
       makeQuest('2', 'horror', 'hard'),
     ];
 
-    renderWithProviders(<HomePage />, {
-      preloadedState: {
-        quests: {quests, status: 'success', error: null, theme: 'all', difficulty: 'any'},
-      },
+    await act(async () => {
+      renderWithProviders(<HomePage />, {
+        preloadedState: {
+          quests: {quests, status: 'success', error: null, theme: 'all', difficulty: 'any'},
+        },
+      });
     });
 
     expect(screen.getByText('Quest 1')).toBeInTheDocument();
     expect(screen.getByText('Quest 2')).toBeInTheDocument();
 
     const user = userEvent.setup();
-    await user.click(screen.getByLabelText('Мистика'));
+    await act(async () => {
+      await user.click(screen.getByLabelText('Мистика'));
+    });
 
     expect(screen.getByText('Quest 1')).toBeInTheDocument();
     expect(screen.queryByText('Quest 2')).not.toBeInTheDocument();
 
-    await user.click(screen.getByLabelText('Сложный'));
+    await act(async () => {
+      await user.click(screen.getByLabelText('Сложный'));
+    });
     expect(screen.getByText('По выбранным фильтрам квестов не найдено.')).toBeInTheDocument();
   });
 });

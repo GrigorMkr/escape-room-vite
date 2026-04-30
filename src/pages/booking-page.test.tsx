@@ -1,4 +1,4 @@
-import {screen, waitFor} from '@testing-library/react';
+import {act, screen, waitFor} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {Route, Routes} from 'react-router-dom';
 import BookingPage from './booking-page';
@@ -92,32 +92,42 @@ describe('BookingPage', () => {
     getQuestBookingPlaces.mockResolvedValueOnce(places);
     createBooking.mockResolvedValueOnce();
 
-    renderWithProviders(
-      <Routes>
-        <Route path="/quest/:id/booking" element={<BookingPage />} />
-        <Route path="/my-quests" element={<div>My bookings</div>} />
-      </Routes>,
-      {
-        route: '/quest/q1/booking',
-        preloadedState: {auth: {isAuthorized: true, status: 'success', error: null}},
-      }
-    );
+    await act(async () => {
+      renderWithProviders(
+        <Routes>
+          <Route path="/quest/:id/booking" element={<BookingPage />} />
+          <Route path="/my-quests" element={<div>My bookings</div>} />
+        </Routes>,
+        {
+          route: '/quest/q1/booking',
+          preloadedState: {auth: {isAuthorized: true, status: 'success', error: null}},
+        }
+      );
+    });
 
     await screen.findByText('Бронирование квеста');
 
     const user = userEvent.setup();
 
-    await user.type(screen.getByLabelText('Ваше имя'), 'Иван');
+    await act(async () => {
+      await user.type(screen.getByLabelText('Ваше имя'), 'Иван');
+    });
 
     const tel = screen.getByLabelText('Контактный телефон');
-    await user.type(tel, '+79871484032');
-    await user.tab();
+    await act(async () => {
+      await user.type(tel, '+79871484032');
+      await user.tab();
+    });
     expect(tel).toHaveValue('+7 (987) 148-40-32');
 
     const agreement = screen.getByRole('checkbox', {name: /Я\s+согласен/i});
-    await user.click(agreement);
+    await act(async () => {
+      await user.click(agreement);
+    });
 
-    await user.click(screen.getByRole('button', {name: 'Забронировать'}));
+    await act(async () => {
+      await user.click(screen.getByRole('button', {name: 'Забронировать'}));
+    });
 
     await waitFor(() => {
       expect(createBooking).toHaveBeenCalled();
@@ -133,20 +143,22 @@ describe('BookingPage', () => {
     const {default: PrivateRoute} = await import('../components/private-route');
     const Login = () => <div>Login</div>;
 
-    renderWithProviders(
-      <Routes>
-        <Route
-          path="/quest/:id/booking"
-          element={(
-            <PrivateRoute isAuthorized={false}>
-              <BookingPage />
-            </PrivateRoute>
-          )}
-        />
-        <Route path="/login" element={<Login />} />
-      </Routes>,
-      {route: '/quest/q1/booking'}
-    );
+    await act(async () => {
+      renderWithProviders(
+        <Routes>
+          <Route
+            path="/quest/:id/booking"
+            element={(
+              <PrivateRoute isAuthorized={false}>
+                <BookingPage />
+              </PrivateRoute>
+            )}
+          />
+          <Route path="/login" element={<Login />} />
+        </Routes>,
+        {route: '/quest/q1/booking'}
+      );
+    });
 
     expect(await screen.findByText('Login')).toBeInTheDocument();
   });

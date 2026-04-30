@@ -1,4 +1,4 @@
-import {screen, waitFor} from '@testing-library/react';
+import {act, screen, waitFor} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import MyBookingsPage from './my-bookings-page';
 import {renderWithProviders} from '../test-utils/render';
@@ -50,8 +50,10 @@ describe('MyBookingsPage', () => {
   it('shows empty state when no bookings', async () => {
     getMyBookings.mockResolvedValueOnce([]);
 
-    renderWithProviders(<MyBookingsPage />, {
-      preloadedState: {auth: {isAuthorized: true, status: 'success', error: null}},
+    await act(async () => {
+      renderWithProviders(<MyBookingsPage />, {
+        preloadedState: {auth: {isAuthorized: true, status: 'success', error: null}},
+      });
     });
 
     expect(await screen.findByText('У вас пока нет бронирований.')).toBeInTheDocument();
@@ -64,8 +66,10 @@ describe('MyBookingsPage', () => {
       resolveCancel = () => resolve();
     }));
 
-    renderWithProviders(<MyBookingsPage />, {
-      preloadedState: {auth: {isAuthorized: true, status: 'success', error: null}},
+    await act(async () => {
+      renderWithProviders(<MyBookingsPage />, {
+        preloadedState: {auth: {isAuthorized: true, status: 'success', error: null}},
+      });
     });
 
     expect(await screen.findAllByRole('link', {name: 'Quest 1'})).toHaveLength(2);
@@ -74,12 +78,16 @@ describe('MyBookingsPage', () => {
     expect(cancelButtons).toHaveLength(2);
 
     const user = userEvent.setup();
-    await user.click(cancelButtons[0]);
+    await act(async () => {
+      await user.click(cancelButtons[0]);
+    });
 
     expect(cancelBooking).toHaveBeenCalledWith('b1');
     expect(await screen.findByRole('button', {name: 'Отмена...'})).toBeDisabled();
 
-    resolveCancel();
+    await act(async () => {
+      resolveCancel();
+    });
 
     await waitFor(() => {
       expect(screen.getAllByRole('link', {name: 'Quest 1'})).toHaveLength(1);

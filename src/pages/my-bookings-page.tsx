@@ -30,6 +30,7 @@ const getDayLabel = (day: string): string => {
 
 const MyBookingsPage = () => {
   const [bookings, setBookings] = useState<BookingRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isCancelling, setIsCancelling] = useState<string | null>(null);
   const [error, setError] = useState('');
 
@@ -48,6 +49,11 @@ const MyBookingsPage = () => {
           return;
         }
         setError(err instanceof Error ? err.message : 'Не удалось загрузить бронирования.');
+      } finally {
+        if (!active) {
+          return;
+        }
+        setIsLoading(false);
       }
     })();
 
@@ -93,7 +99,9 @@ const MyBookingsPage = () => {
 
         <ErrorBox errors={error ? [error] : []} ariaLive="polite" />
 
-        {bookings.length === 0 ? (
+        {isLoading ? (
+          <p>Загрузка бронирований...</p>
+        ) : bookings.length === 0 ? (
           <p>У вас пока нет бронирований.</p>
         ) : (
           <div className="cards-grid">
