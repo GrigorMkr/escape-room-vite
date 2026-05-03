@@ -33,6 +33,7 @@ const LoginPage = ({onLogin, isAuthorized}: LoginPageProps) => {
     evt.preventDefault();
 
     const nextErrors: string[] = [];
+    const agreed = (evt.currentTarget.elements.namedItem('user-agreement') as HTMLInputElement | null)?.checked;
 
     const trimmedEmail = email.trim();
     const trimmedPassword = password.trim();
@@ -51,6 +52,13 @@ const LoginPage = ({onLogin, isAuthorized}: LoginPageProps) => {
 
     if (nextErrors.length > 0) {
       setErrors(nextErrors);
+      return;
+    }
+
+    if (!agreed) {
+      setErrors([
+        'Необходимо согласие с правилами обработки персональных данных и пользовательским соглашением.',
+      ]);
       return;
     }
 
@@ -130,6 +138,36 @@ const LoginPage = ({onLogin, isAuthorized}: LoginPageProps) => {
 
               <button className="btn btn--accent btn--general login-form__submit" type="submit">Войти</button>
             </div>
+            <label className="custom-checkbox login-form__checkbox">
+              <input type="checkbox" id="login-user-agreement" name="user-agreement" />
+              <span className="custom-checkbox__icon">
+                <svg width="20" height="17" aria-hidden="true">
+                  <use xlinkHref={`${import.meta.env.BASE_URL}img/sprite.svg#icon-tick`} />
+                </svg>
+              </span>
+              <span className="custom-checkbox__label">
+                Я{'\u00A0'}согласен с{' '}
+                <a
+                  className="link link--active-silver link--underlined"
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                  }}
+                >
+                  правилами обработки персональных данных
+                </a>
+                {'\u00A0'}и{' '}
+                <a
+                  className="link link--active-silver link--underlined"
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                  }}
+                >
+                  пользовательским соглашением
+                </a>
+              </span>
+            </label>
           </form>
         </div>
       </div>

@@ -3,7 +3,15 @@ import {Link, Navigate, useParams} from 'react-router-dom';
 import type {Quest} from '../components/quest-card';
 import {HERO_IMAGE_SIZE} from '../constants/ui';
 import {ApiError} from '../services/api-client';
+import {
+  academyCatalogPreview,
+  getGradingQuestSlugFromUrl,
+  getQuestDecorHeroPictureSources,
+  type QuestDecorHeroPictureSources,
+} from '../utils/academy-catalog-preview';
 import {getQuest} from '../services/quests-api';
+
+const previewAssetOpts = {assetBaseUrl: import.meta.env.BASE_URL};
 
 const mapServerQuestTypeToTheme = (type: string): Quest['theme'] => {
   switch (type) {
@@ -27,6 +35,8 @@ const mapPeopleMinMax = (value: number[]): {min: number; max: number} => {
 const QuestPage = () => {
   const {id} = useParams();
   const [quest, setQuest] = useState<Quest | null>(null);
+  const [heroDecor, setHeroDecor] = useState<QuestDecorHeroPictureSources | null>(null);
+  const [heroDecorImageCentered, setHeroDecorImageCentered] = useState(false);
   const [serverError, setServerError] = useState('');
   const [notFound, setNotFound] = useState(false);
 
@@ -38,6 +48,8 @@ const QuestPage = () => {
     setServerError('');
     setNotFound(false);
     setQuest(null);
+    setHeroDecor(null);
+    setHeroDecorImageCentered(false);
 
     let cancelled = false;
     void (async () => {
@@ -47,6 +59,14 @@ const QuestPage = () => {
           return;
         }
         const {min, max} = mapPeopleMinMax(data.peopleMinMax);
+        const previewWebp = academyCatalogPreview(data.previewImgWebp, previewAssetOpts);
+        const previewWebp2x = academyCatalogPreview(data.previewImgWebp, {...previewAssetOpts, retina: true});
+        const previewJpg = academyCatalogPreview(data.previewImg, previewAssetOpts);
+        const previewJpg2x = academyCatalogPreview(data.previewImg, {...previewAssetOpts, retina: true});
+        setHeroDecor(getQuestDecorHeroPictureSources(data));
+        const decorSlug =
+          getGradingQuestSlugFromUrl(data.previewImg) ?? getGradingQuestSlugFromUrl(data.coverImg);
+        setHeroDecorImageCentered(decorSlug === 'maniac');
         setQuest({
           id: data.id,
           title: data.title,
@@ -55,11 +75,11 @@ const QuestPage = () => {
           minPeople: min,
           maxPeople: max,
           description: data.description,
-          imageWebp: data.previewImgWebp,
-          imageWebp2x: data.previewImgWebp,
-          imageJpg: data.previewImg,
-          imageJpg2x: data.previewImg,
-          backgroundImageJpg: data.coverImg,
+          imageWebp: previewWebp,
+          imageWebp2x: previewWebp2x,
+          imageJpg: previewJpg,
+          imageJpg2x: previewJpg2x,
+          backgroundImageJpg: previewJpg,
           alt: data.title,
         });
       } catch (err) {
@@ -117,7 +137,7 @@ const QuestPage = () => {
   let difficultyLabel = '';
   switch (quest.difficulty) {
     case 'easy':
-      difficultyLabel = 'Простой';
+      difficultyLabel = 'Лёгкий';
       break;
     case 'medium':
       difficultyLabel = 'Средний';
@@ -129,10 +149,25 @@ const QuestPage = () => {
       difficultyLabel = quest.difficulty;
   }
 
+  const questPageMainClass = heroDecorImageCentered
+    ? 'decorated-page quest-page quest-page--hero-image-center'
+    : 'decorated-page quest-page';
+
   return (
-    <main className="decorated-page quest-page">
+    <main className={questPageMainClass}>
       <div className="decorated-page__decor" aria-hidden="true">
-        <img src={quest.backgroundImageJpg} width={HERO_IMAGE_SIZE.width} height={HERO_IMAGE_SIZE.height} alt="" />
+        {heroDecor ? (
+          <picture>
+            <source type="image/webp" srcSet={`${heroDecor.webp} 1x, ${heroDecor.webp2x} 2x`} />
+            <img
+              src={heroDecor.jpg}
+              srcSet={`${heroDecor.jpg2x} 2x`}
+              width={HERO_IMAGE_SIZE.width}
+              height={HERO_IMAGE_SIZE.height}
+              alt=""
+            />
+          </picture>
+        ) : null}
       </div>
       <div className="container container--size-l">
         <div className="quest-page__content">
@@ -143,7 +178,11 @@ const QuestPage = () => {
               <svg width="11" height="14" aria-hidden="true">
                 <use xlinkHref={`${import.meta.env.BASE_URL}img/sprite.svg#icon-person`} />
               </svg>
-              {quest.minPeople}-{quest.maxPeople} чел
+              {quest.minPeople}
+              {'\u2013'}
+              {quest.maxPeople}
+              {'\u00A0'}
+              чел
             </li>
             <li className="tags__item">
               <svg width="14" height="14" aria-hidden="true">

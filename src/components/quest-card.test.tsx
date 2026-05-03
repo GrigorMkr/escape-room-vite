@@ -21,8 +21,8 @@ describe('QuestCard', () => {
   it('renders quest info and link', () => {
     renderWithProviders(<QuestCard quest={quest} />);
     expect(screen.getByText('Quest 1')).toBeInTheDocument();
-    expect(screen.getByText('2-4 чел')).toBeInTheDocument();
-    expect(screen.getByText('Простой')).toBeInTheDocument();
+    expect(screen.getByText((_, el) => el?.textContent === '2\u20134\u00A0чел')).toBeInTheDocument();
+    expect(screen.getByText('Лёгкий')).toBeInTheDocument();
 
     expect(screen.getByRole('link')).toHaveAttribute('href', '/quest/q1');
     expect(screen.getByRole('img', {name: 'Quest 1'})).toBeInTheDocument();

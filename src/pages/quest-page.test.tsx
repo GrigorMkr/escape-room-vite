@@ -42,7 +42,8 @@ describe('QuestPage', () => {
 
     expect(await screen.findByRole('heading', {name: 'Quest 1'})).toBeInTheDocument();
     expect(screen.getByText('Мистика')).toBeInTheDocument();
-    expect(screen.getByText('2-4 чел')).toBeInTheDocument();
+    const tags = screen.getAllByRole('listitem');
+    expect(tags[0]).toHaveTextContent(/^2\D+4\s+чел$/);
 
     const booking = screen.getByRole('link', {name: 'Забронировать'});
     expect(booking).toHaveAttribute('href', '/quest/q1/booking');

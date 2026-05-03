@@ -5,9 +5,14 @@ import {type BookingPlace, type BookingDay} from '../types/booking';
 import BookingDaySlots from '../components/booking-day-slots';
 import BookingMap from '../components/booking-map';
 import ErrorBox from '../components/error-box';
+import {BOOKING_FORM_PHONE_DISPLAY_REGEX, CONTACT_NAME_REGEX} from '../constants/validation';
 import {createBooking, getQuestBookingPlaces} from '../services/bookings-api';
 import {getQuest, type QuestDetailResponse} from '../services/quests-api';
-import {HERO_IMAGE_SIZE} from '../constants/ui';
+
+const BOOKING_BACKGROUND_DECOR_SIZE = {
+  width: 1366,
+  height: 1959,
+} as const;
 
 type BookingFormValues = {
   name: string;
@@ -17,9 +22,6 @@ type BookingFormValues = {
   children: boolean;
   agreement: boolean;
 };
-
-const phoneRegex = /^\+7\s\(\d{3}\)\s\d{3}-\d{2}-\d{2}$/;
-const nameRegex = /^[A-Za-zА-Яа-яЁё' -]{1,15}$/;
 
 const formatPhoneDisplay = (value: string): string => {
   const digits = value.replace(/\D/g, '');
@@ -238,8 +240,8 @@ const BookingPage = () => {
           <img
             src={`${import.meta.env.BASE_URL}img/content/maniac/maniac-bg-size-m.jpg`}
             srcSet={`${import.meta.env.BASE_URL}img/content/maniac/maniac-bg-size-m@2x.jpg 2x`}
-            width={HERO_IMAGE_SIZE.width}
-            height={HERO_IMAGE_SIZE.height}
+            width={BOOKING_BACKGROUND_DECOR_SIZE.width}
+            height={BOOKING_BACKGROUND_DECOR_SIZE.height}
             alt=""
           />
         </picture>
@@ -325,7 +327,7 @@ const BookingPage = () => {
                       if (!trimmed) {
                         return 'Введите имя.';
                       }
-                      if (!nameRegex.test(trimmed)) {
+                      if (!CONTACT_NAME_REGEX.test(trimmed)) {
                         return 'Имя должно содержать 1-15 символов.';
                       }
                       return true;
@@ -354,7 +356,7 @@ const BookingPage = () => {
                       if (!trimmed) {
                         return 'Введите телефон.';
                       }
-                      if (!phoneRegex.test(trimmed)) {
+                      if (!BOOKING_FORM_PHONE_DISPLAY_REGEX.test(trimmed)) {
                         return 'Телефон должен быть в формате +7 (000) 000-00-00.';
                       }
                       return true;
@@ -394,7 +396,7 @@ const BookingPage = () => {
                 />
                 <span className="custom-checkbox__icon">
                   <svg width="20" height="17" aria-hidden="true">
-                    <use xlinkHref="#icon-tick" />
+                    <use xlinkHref={`${import.meta.env.BASE_URL}img/sprite.svg#icon-tick`} />
                   </svg>
                 </span>
                 <span className="custom-checkbox__label">Со&nbsp;мной будут дети</span>
@@ -410,7 +412,7 @@ const BookingPage = () => {
               />
               <span className="custom-checkbox__icon">
                 <svg width="20" height="17" aria-hidden="true">
-                  <use xlinkHref="#icon-tick" />
+                  <use xlinkHref={`${import.meta.env.BASE_URL}img/sprite.svg#icon-tick`} />
                 </svg>
               </span>
               <span className="custom-checkbox__label">

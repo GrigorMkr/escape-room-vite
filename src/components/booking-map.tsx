@@ -3,6 +3,8 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type {BookingPlace} from '../types/booking';
 import {MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM, PIN_ICON_ANCHOR, PIN_ICON_SIZE} from '../constants/ui';
+import {coordsToLeafletTuple} from '../utils/map-coords';
+import {resolvePublicAssetUrl} from '../utils/public-asset-url';
 
 type BookingMapProps = {
   places: BookingPlace[];
@@ -11,41 +13,16 @@ type BookingMapProps = {
 };
 
 const defaultMarkerIcon = L.icon({
-  iconUrl: `${import.meta.env.BASE_URL}img/svg/pin-default.svg`,
+  iconUrl: resolvePublicAssetUrl('img/svg/pin-default.svg'),
   iconSize: PIN_ICON_SIZE,
   iconAnchor: PIN_ICON_ANCHOR,
 });
 
 const activeMarkerIcon = L.icon({
-  iconUrl: `${import.meta.env.BASE_URL}img/svg/pin-active.svg`,
+  iconUrl: resolvePublicAssetUrl('img/svg/pin-active.svg'),
   iconSize: PIN_ICON_SIZE,
   iconAnchor: PIN_ICON_ANCHOR,
 });
-
-const normalizeLatLng = (coords: [number, number] | undefined): [number, number] | null => {
-  if (!coords) {
-    return null;
-  }
-
-  const a = Number(coords[0]);
-  const b = Number(coords[1]);
-
-  if (!Number.isFinite(a) || !Number.isFinite(b)) {
-    return null;
-  }
-
-  const asIsValid = Math.abs(a) <= 90 && Math.abs(b) <= 180;
-  if (asIsValid) {
-    return [a, b];
-  }
-
-  const swappedValid = Math.abs(b) <= 90 && Math.abs(a) <= 180;
-  if (swappedValid) {
-    return [b, a];
-  }
-
-  return null;
-};
 
 const BookingMap = ({
   places,
@@ -62,7 +39,7 @@ const BookingMap = ({
 
   const placesWithCoords = useMemo(
     () => places
-      .map((place) => ({place, coords: normalizeLatLng(place.coords)}))
+      .map((place) => ({place, coords: coordsToLeafletTuple(place.coords)}))
       .filter((x): x is {place: BookingPlace; coords: [number, number]} => x.coords !== null),
     [places]
   );
@@ -167,25 +144,37 @@ const BookingMap = ({
     });
 
     placesWithCoords.forEach(({place, coords}) => {
-      if (markersRef.current.has(place.id)) {
-        return;
+      const icon = place.id === selectedPlaceId ? activeMarkerIcon : defaultMarkerIcon;
+      const existing = markersRef.current.get(place.id);
+
+      if (existing) {
+        if (map.hasLayer(existing)) {
+          existing.setLatLng(coords as L.LatLngExpression);
+          existing.setIcon(icon);
+          return;
+        }
+
+        markersRef.current.delete(place.id);
+
+        try {
+          existing.off?.();
+          existing.remove();
+        } catch (e) {
+          void e;
+        }
       }
 
-      const marker = L.marker(coords as L.LatLngExpression, {
-        icon: place.id === selectedPlaceId ? activeMarkerIcon : defaultMarkerIcon,
-      });
+      const marker = L.marker(coords as L.LatLngExpression, {icon});
 
       marker.on('click', () => onSelectPlace(place.id));
       marker.addTo(map);
       markersRef.current.set(place.id, marker);
     });
-  }, [onSelectPlace, placesWithCoords, selectedPlaceId]);
 
-  useEffect(() => {
-    markersRef.current.forEach((marker, placeId) => {
-      marker.setIcon(placeId === selectedPlaceId ? activeMarkerIcon : defaultMarkerIcon);
+    queueMicrotask(() => {
+      map.invalidateSize({pan: false});
     });
-  }, [selectedPlaceId]);
+  }, [onSelectPlace, placesWithCoords, selectedPlaceId]);
 
   useEffect(() => () => {
     if (invalidateTimeoutRef.current !== null) {
@@ -193,7 +182,16 @@ const BookingMap = ({
       invalidateTimeoutRef.current = null;
     }
     const markersToRemove = Array.from(markersRef.current.values());
-    markersToRemove.forEach((marker) => marker.remove());
+    markersRef.current.clear();
+    markersToRemove.forEach((marker) => {
+      marker.off?.();
+
+      try {
+        marker.remove();
+      } catch (e) {
+        void e;
+      }
+    });
     resizeObserverRef.current?.disconnect();
     resizeObserverRef.current = null;
     tileLayerRef.current?.remove();

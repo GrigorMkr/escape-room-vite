@@ -9,7 +9,7 @@ describe('LoginPage', () => {
     const onLogin = vi.fn();
     const user = userEvent.setup();
 
-    await act(async () => {
+    act(() => {
       renderWithProviders(
         <Routes>
           <Route path="/login" element={<LoginPage onLogin={onLogin} isAuthorized={false} />} />
@@ -31,7 +31,7 @@ describe('LoginPage', () => {
     const onLogin = vi.fn().mockResolvedValueOnce(undefined);
     const user = userEvent.setup();
 
-    await act(async () => {
+    act(() => {
       renderWithProviders(
         <Routes>
           <Route path="/login" element={<LoginPage onLogin={onLogin} isAuthorized={false} />} />
@@ -45,6 +45,7 @@ describe('LoginPage', () => {
     await act(async () => {
       await user.type(screen.getByLabelText(/mail/i), 'user@example.com');
       await user.type(screen.getByLabelText('Пароль'), 'a1b');
+      await user.click(screen.getByRole('checkbox'));
     });
 
     await act(async () => {

@@ -7,6 +7,7 @@ vi.mock('leaflet', () => {
     setView: vi.fn().mockReturnThis(),
     getZoom: vi.fn(() => 12),
     invalidateSize: vi.fn(),
+    hasLayer: vi.fn(() => true),
     remove: vi.fn(),
   }));
   const marker = vi.fn(() => ({

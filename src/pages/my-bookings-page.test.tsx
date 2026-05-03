@@ -50,7 +50,7 @@ describe('MyBookingsPage', () => {
   it('shows empty state when no bookings', async () => {
     getMyBookings.mockResolvedValueOnce([]);
 
-    await act(async () => {
+    act(() => {
       renderWithProviders(<MyBookingsPage />, {
         preloadedState: {auth: {isAuthorized: true, status: 'success', error: null}},
       });
@@ -66,7 +66,7 @@ describe('MyBookingsPage', () => {
       resolveCancel = () => resolve();
     }));
 
-    await act(async () => {
+    act(() => {
       renderWithProviders(<MyBookingsPage />, {
         preloadedState: {auth: {isAuthorized: true, status: 'success', error: null}},
       });
@@ -85,7 +85,7 @@ describe('MyBookingsPage', () => {
     expect(cancelBooking).toHaveBeenCalledWith('b1');
     expect(await screen.findByRole('button', {name: 'Отмена...'})).toBeDisabled();
 
-    await act(async () => {
+    act(() => {
       resolveCancel();
     });
 

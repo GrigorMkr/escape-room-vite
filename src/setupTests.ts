@@ -4,20 +4,23 @@ import { expect } from 'vitest';
 expect.extend(matchers);
 
 class ResizeObserverMock {
-  observe() {
+  observe(): void {
     void 0;
   }
 
-  unobserve() {
+  unobserve(): void {
     void 0;
   }
 
-  disconnect() {
+  disconnect(): void {
     void 0;
   }
 }
 
 if (!('ResizeObserver' in window)) {
-  // @ts-expect-error test environment polyfill
-  window.ResizeObserver = ResizeObserverMock;
+  Object.defineProperty(window, 'ResizeObserver', {
+    writable: true,
+    configurable: true,
+    value: ResizeObserverMock,
+  });
 }

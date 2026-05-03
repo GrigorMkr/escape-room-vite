@@ -1,3 +1,5 @@
+import {MAP_DEFAULT_CENTER} from '../constants/ui';
+import {coordsToLeafletTuple} from '../utils/map-coords';
 import {getStoredToken, requestJson} from './api-client';
 import type {BookingDay, BookingPlace} from '../types/booking';
 
@@ -10,7 +12,7 @@ type QuestBookingPlacesResponse = {
   id: string;
   location: {
     address: string;
-    coords: [number, number];
+    coords: unknown;
   };
   slots: {
     today: QuestBookingSlotResponse[];
@@ -31,7 +33,8 @@ type SlotRequestBody = {
 const mapPlacesResponse = (places: QuestBookingPlacesResponse[]): BookingPlace[] => places.map((place) => ({
   id: place.id,
   address: place.location.address,
-  coords: place.location.coords,
+  coords: coordsToLeafletTuple(place.location.coords)
+    ?? [...MAP_DEFAULT_CENTER] as [number, number],
   slots: [
     ...place.slots.today.map((slot) => ({
       id: `today-${slot.time}-${place.id}`,

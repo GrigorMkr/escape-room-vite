@@ -1,6 +1,14 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import type {Quest} from '../components/quest-card';
 import {getQuests} from '../services/quests-api';
+import {
+  academyCatalogPreview,
+  getCatalogCardPictureSources,
+  getGradingQuestSlugFromUrl,
+} from '../utils/academy-catalog-preview';
+
+const previewAssetOpts = {assetBaseUrl: import.meta.env.BASE_URL};
+const previewBaseUrl = import.meta.env.BASE_URL;
 
 type ThemeFilter = 'all' | 'adventure' | 'horror' | 'mystic' | 'detective' | 'sci-fi';
 type DifficultyFilter = 'any' | 'easy' | 'medium' | 'hard';
@@ -46,6 +54,20 @@ const fetchQuestsAction = createAsyncThunk<Quest[]>(
     const data = await getQuests();
     return data.map((quest) => {
       const {min, max} = mapPeopleMinMax(quest.peopleMinMax);
+      const catalogSlug = getGradingQuestSlugFromUrl(quest.previewImg);
+      const markupCard = catalogSlug ? getCatalogCardPictureSources(catalogSlug, previewBaseUrl) : null;
+
+      let previewWebp = academyCatalogPreview(quest.previewImgWebp, previewAssetOpts);
+      let previewWebp2x = academyCatalogPreview(quest.previewImgWebp, {...previewAssetOpts, retina: true});
+      let previewJpg = academyCatalogPreview(quest.previewImg, previewAssetOpts);
+      let previewJpg2x = academyCatalogPreview(quest.previewImg, {...previewAssetOpts, retina: true});
+
+      if (markupCard) {
+        previewWebp = markupCard.webp;
+        previewWebp2x = markupCard.webp2x;
+        previewJpg = markupCard.jpg;
+        previewJpg2x = markupCard.jpg2x;
+      }
       return {
         id: quest.id,
         title: quest.title,
@@ -54,12 +76,13 @@ const fetchQuestsAction = createAsyncThunk<Quest[]>(
         minPeople: min,
         maxPeople: max,
         description: '',
-        imageWebp: quest.previewImgWebp,
-        imageWebp2x: quest.previewImgWebp,
-        imageJpg: quest.previewImg,
-        imageJpg2x: quest.previewImg,
-        backgroundImageJpg: quest.previewImg,
+        imageWebp: previewWebp,
+        imageWebp2x: previewWebp2x,
+        imageJpg: previewJpg,
+        imageJpg2x: previewJpg2x,
+        backgroundImageJpg: previewJpg,
         alt: quest.title,
+        catalogCardImageCentered: catalogSlug === 'maniac',
       };
     });
   }

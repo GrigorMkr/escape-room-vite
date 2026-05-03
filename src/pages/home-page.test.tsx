@@ -43,7 +43,7 @@ describe('HomePage', () => {
       makeQuest('2', 'horror', 'hard'),
     ];
 
-    await act(async () => {
+    act(() => {
       renderWithProviders(<HomePage />, {
         preloadedState: {
           quests: {quests, status: 'success', error: null, theme: 'all', difficulty: 'any'},

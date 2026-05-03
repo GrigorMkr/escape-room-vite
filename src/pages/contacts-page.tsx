@@ -1,5 +1,9 @@
 import ContactsMap from '../components/contacts-map';
-import {HERO_IMAGE_SIZE} from '../constants/ui';
+
+const CONTACTS_DECOR_LAYER_SIZE = {
+  width: 1366,
+  height: 1959,
+} as const;
 
 const ContactsPage = () => (
   <main className="page-content decorated-page">
@@ -12,8 +16,8 @@ const ContactsPage = () => (
         <img
           src={`${import.meta.env.BASE_URL}img/content/maniac/maniac-bg-size-m.jpg`}
           srcSet={`${import.meta.env.BASE_URL}img/content/maniac/maniac-bg-size-m@2x.jpg 2x`}
-          width={HERO_IMAGE_SIZE.width}
-          height={HERO_IMAGE_SIZE.height}
+          width={CONTACTS_DECOR_LAYER_SIZE.width}
+          height={CONTACTS_DECOR_LAYER_SIZE.height}
           alt=""
         />
       </picture>

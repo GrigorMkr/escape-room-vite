@@ -1,8 +1,21 @@
 import {useEffect, useState} from 'react';
 import {Link} from 'react-router-dom';
 import ErrorBox from '../components/error-box';
-import {HERO_IMAGE_SIZE, QUEST_CARD_IMAGE_SIZE} from '../constants/ui';
+import {QUEST_CARD_IMAGE_SIZE} from '../constants/ui';
 import {cancelBooking, getMyBookings, type BookingRecord} from '../services/bookings-api';
+import {
+  academyCatalogPreview,
+  getCatalogCardPictureSources,
+  getGradingQuestSlugFromUrl,
+} from '../utils/academy-catalog-preview';
+
+const MY_BOOKINGS_DECOR_LAYER_SIZE = {
+  width: 1366,
+  height: 1959,
+} as const;
+
+const previewAssetOpts = {assetBaseUrl: import.meta.env.BASE_URL};
+const bookingCardBaseUrl = import.meta.env.BASE_URL;
 
 const getDifficultyLabel = (difficulty: 'easy' | 'medium' | 'hard'): string => {
   switch (difficulty) {
@@ -28,6 +41,105 @@ const getDayLabel = (day: string): string => {
   }
 };
 
+type BookingsGridProps = Readonly<{
+  bookings: BookingRecord[];
+  isCancelling: string | null;
+  onCancelBooking: (id: string) => Promise<void>;
+}>;
+
+function renderBookingsGrid({
+  bookings,
+  isCancelling,
+  onCancelBooking,
+}: BookingsGridProps) {
+  return (
+    <div className="cards-grid">
+      {bookings.map((booking) => {
+        const slug = getGradingQuestSlugFromUrl(booking.quest.previewImg ?? '');
+        const markupCard = slug ? getCatalogCardPictureSources(slug, bookingCardBaseUrl) : null;
+
+        let webpPreview = academyCatalogPreview(booking.quest.previewImgWebp, previewAssetOpts);
+        let webpPreview2x = academyCatalogPreview(booking.quest.previewImgWebp, {
+          ...previewAssetOpts,
+          retina: true,
+        });
+        let jpgPreview = academyCatalogPreview(booking.quest.previewImg ?? '', previewAssetOpts);
+        let jpgPreview2x = academyCatalogPreview(booking.quest.previewImg ?? '', {
+          ...previewAssetOpts,
+          retina: true,
+        });
+
+        if (markupCard !== null) {
+          webpPreview = markupCard.webp;
+          webpPreview2x = markupCard.webp2x;
+          jpgPreview = markupCard.jpg;
+          jpgPreview2x = markupCard.jpg2x;
+        }
+
+        const wrapClassNames = slug === 'maniac'
+          ? 'quest-card__img quest-card__img--image-center'
+          : 'quest-card__img';
+
+        return (
+          <div key={booking.id} className="quest-card">
+            <div className={wrapClassNames}>
+              <picture>
+                <source type="image/webp" srcSet={`${webpPreview} 1x, ${webpPreview2x} 2x`} />
+                <img
+                  src={jpgPreview}
+                  srcSet={`${jpgPreview2x} 2x`}
+                  width={QUEST_CARD_IMAGE_SIZE.width}
+                  height={QUEST_CARD_IMAGE_SIZE.height}
+                  alt={booking.quest.title}
+                />
+              </picture>
+            </div>
+
+            <div className="quest-card__content">
+              <div className="quest-card__info-wrapper">
+                <Link className="quest-card__link" to={`/quest/${booking.quest.id}`}>
+                  {booking.quest.title}
+                </Link>
+                <span className="quest-card__info">
+                [{getDayLabel(booking.date)}, {booking.time}. {booking.location.address}]
+                </span>
+              </div>
+
+              <ul className="tags quest-card__tags">
+                <li className="tags__item">
+                  <svg width="11" height="14" aria-hidden="true">
+                    <use xlinkHref={`${import.meta.env.BASE_URL}img/sprite.svg#icon-person`} />
+                  </svg>
+                  {booking.peopleCount}
+                  {'\u00A0'}
+                чел
+                </li>
+                <li className="tags__item">
+                  <svg width="14" height="14" aria-hidden="true">
+                    <use xlinkHref={`${import.meta.env.BASE_URL}img/sprite.svg#icon-level`} />
+                  </svg>
+                  {getDifficultyLabel(booking.quest.level)}
+                </li>
+              </ul>
+
+              <button
+                className="btn btn--accent btn--secondary quest-card__btn"
+                type="button"
+                onClick={() => {
+                  void onCancelBooking(booking.id);
+                }}
+                disabled={isCancelling === booking.id}
+              >
+                {isCancelling === booking.id ? 'Отмена...' : 'Отменить'}
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 const MyBookingsPage = () => {
   const [bookings, setBookings] = useState<BookingRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,45 +147,54 @@ const MyBookingsPage = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    let active = true;
+    let cancelled = false;
 
     void (async () => {
       try {
         const list = await getMyBookings();
-        if (!active) {
-          return;
+        if (!cancelled) {
+          setBookings(list);
         }
-        setBookings(list);
       } catch (err) {
-        if (!active) {
-          return;
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : 'Не удалось загрузить бронирования.');
         }
-        setError(err instanceof Error ? err.message : 'Не удалось загрузить бронирования.');
-      } finally {
-        if (!active) {
-          return;
-        }
+      }
+      if (!cancelled) {
         setIsLoading(false);
       }
     })();
 
     return () => {
-      active = false;
+      cancelled = true;
     };
   }, []);
 
-  const handleCancel = async (id: string) => {
+  const handleCancelBooking = async (bookingId: string): Promise<void> => {
     setError('');
-    setIsCancelling(id);
+    setIsCancelling(bookingId);
     try {
-      await cancelBooking(id);
-      setBookings((prev) => prev.filter((booking) => booking.id !== id));
+      await cancelBooking(bookingId);
+      setBookings((previous) => previous.filter((booking) => booking.id !== bookingId));
     } catch {
       setError('Не удалось отменить бронирование. Попробуйте ещё раз.');
     } finally {
       setIsCancelling(null);
     }
   };
+
+  let bookingsBody;
+  if (isLoading) {
+    bookingsBody = <p>Загрузка бронирований...</p>;
+  } else if (bookings.length === 0) {
+    bookingsBody = <p>У вас пока нет бронирований.</p>;
+  } else {
+    bookingsBody = renderBookingsGrid({
+      bookings,
+      isCancelling,
+      onCancelBooking: handleCancelBooking,
+    });
+  }
 
   return (
     <main className="page-content decorated-page">
@@ -86,8 +207,8 @@ const MyBookingsPage = () => {
           <img
             src={`${import.meta.env.BASE_URL}img/content/maniac/maniac-bg-size-m.jpg`}
             srcSet={`${import.meta.env.BASE_URL}img/content/maniac/maniac-bg-size-m@2x.jpg 2x`}
-            width={HERO_IMAGE_SIZE.width}
-            height={HERO_IMAGE_SIZE.height}
+            width={MY_BOOKINGS_DECOR_LAYER_SIZE.width}
+            height={MY_BOOKINGS_DECOR_LAYER_SIZE.height}
             alt=""
           />
         </picture>
@@ -99,69 +220,10 @@ const MyBookingsPage = () => {
 
         <ErrorBox errors={error ? [error] : []} ariaLive="polite" />
 
-        {isLoading ? (
-          <p>Загрузка бронирований...</p>
-        ) : bookings.length === 0 ? (
-          <p>У вас пока нет бронирований.</p>
-        ) : (
-          <div className="cards-grid">
-            {bookings.map((booking) => (
-              <div key={booking.id} className="quest-card">
-                <div className="quest-card__img">
-                  <picture>
-                    <img
-                      src={booking.quest.previewImg ?? ''}
-                      width={QUEST_CARD_IMAGE_SIZE.width}
-                      height={QUEST_CARD_IMAGE_SIZE.height}
-                      alt={booking.quest.title}
-                    />
-                  </picture>
-                </div>
-
-                <div className="quest-card__content">
-                  <div className="quest-card__info-wrapper">
-                    <Link className="quest-card__link" to={`/quest/${booking.quest.id}`}>
-                      {booking.quest.title}
-                    </Link>
-                    <span className="quest-card__info">
-                      [{getDayLabel(booking.date)}, {booking.time}. {booking.location.address}]
-                    </span>
-                  </div>
-
-                  <ul className="tags quest-card__tags">
-                    <li className="tags__item">
-                      <svg width="11" height="14" aria-hidden="true">
-                        <use xlinkHref={`${import.meta.env.BASE_URL}img/sprite.svg#icon-person`} />
-                      </svg>
-                      {booking.peopleCount} чел
-                    </li>
-                    <li className="tags__item">
-                      <svg width="14" height="14" aria-hidden="true">
-                        <use xlinkHref={`${import.meta.env.BASE_URL}img/sprite.svg#icon-level`} />
-                      </svg>
-                      {getDifficultyLabel(booking.quest.level)}
-                    </li>
-                  </ul>
-
-                  <button
-                    className="btn btn--accent btn--secondary quest-card__btn"
-                    type="button"
-                    onClick={() => {
-                      void handleCancel(booking.id);
-                    }}
-                    disabled={isCancelling === booking.id}
-                  >
-                    {isCancelling === booking.id ? 'Отмена...' : 'Отменить'}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        {bookingsBody}
       </div>
     </main>
   );
 };
 
 export default MyBookingsPage;
-

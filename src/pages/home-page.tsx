@@ -15,7 +15,7 @@ const THEME_FILTERS = [
 
 const DIFFICULTY_FILTERS = [
   {id: 'any', value: 'any', label: 'Любой'},
-  {id: 'easy', value: 'easy', label: 'Простой'},
+  {id: 'easy', value: 'easy', label: 'Лёгкий'},
   {id: 'middle', value: 'medium', label: 'Средний'},
   {id: 'hard', value: 'hard', label: 'Сложный'},
 ] as const;

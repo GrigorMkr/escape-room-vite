@@ -7,6 +7,10 @@ const store = configureStore({
     auth: authReducer,
     quests: questsReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    import.meta.env.DEV
+      ? getDefaultMiddleware({serializableCheck: false, immutableCheck: false})
+      : getDefaultMiddleware(),
 });
 
 type RootState = ReturnType<typeof store.getState>;

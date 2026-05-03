@@ -2,6 +2,7 @@ import {useEffect, useRef} from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM, PIN_ICON_ANCHOR, PIN_ICON_SIZE} from '../constants/ui';
+import {resolvePublicAssetUrl} from '../utils/public-asset-url';
 
 const ContactsMap = () => {
   const mapRef = useRef<HTMLDivElement | null>(null);
@@ -23,7 +24,7 @@ const ContactsMap = () => {
     }).addTo(map);
 
     const markerIcon = L.icon({
-      iconUrl: `${import.meta.env.BASE_URL}img/svg/pin-default.svg`,
+      iconUrl: resolvePublicAssetUrl('img/svg/pin-default.svg'),
       iconSize: PIN_ICON_SIZE,
       iconAnchor: PIN_ICON_ANCHOR,
     });

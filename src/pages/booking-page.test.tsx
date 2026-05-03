@@ -92,7 +92,7 @@ describe('BookingPage', () => {
     getQuestBookingPlaces.mockResolvedValueOnce(places);
     createBooking.mockResolvedValueOnce();
 
-    await act(async () => {
+    act(() => {
       renderWithProviders(
         <Routes>
           <Route path="/quest/:id/booking" element={<BookingPage />} />
@@ -143,7 +143,7 @@ describe('BookingPage', () => {
     const {default: PrivateRoute} = await import('../components/private-route');
     const Login = () => <div>Login</div>;
 
-    await act(async () => {
+    act(() => {
       renderWithProviders(
         <Routes>
           <Route

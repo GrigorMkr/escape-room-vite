@@ -1,9 +1,9 @@
 import {Suspense, lazy, useCallback, useEffect, useRef} from 'react';
-import {Navigate, Route, Routes} from 'react-router-dom';
+import {Navigate, Route, Routes, useLocation} from 'react-router-dom';
 import Header from './components/header';
 import PrivateRoute from './components/private-route';
 import HomePage from './pages/home-page';
-import {SOCIAL_ICON_SIZE} from './constants/ui';
+import {HERO_IMAGE_SIZE, SOCIAL_ICON_SIZE} from './constants/ui';
 import {checkAuthAction, loginAction, logoutAction} from './store/auth-slice';
 import {useAppDispatch, useAppSelector} from './store/hooks';
 
@@ -16,8 +16,10 @@ const NotFoundPage = lazy(async () => await import('./pages/not-found-page'));
 
 const App = () => {
   const dispatch = useAppDispatch();
+  const location = useLocation();
   const isAuthorized = useAppSelector((state) => state.auth.isAuthorized);
   const didCheckAuthRef = useRef(false);
+  const isNotFoundRoute = location.pathname === '/404';
 
   useEffect(() => {
     if (didCheckAuthRef.current) {
@@ -37,8 +39,27 @@ const App = () => {
     void dispatch(logoutAction());
   }, [dispatch]);
 
+  const baseAssetUrl = import.meta.env.BASE_URL;
+
   return (
-    <div className="wrapper">
+    <div className={isNotFoundRoute ? 'wrapper wrapper--not-found-maniacs-card-bg' : 'wrapper'}>
+      {isNotFoundRoute ? (
+        <div className="app-environment-decor app-environment-decor--not-found" aria-hidden="true">
+          <picture>
+            <source
+              type="image/webp"
+              srcSet={`${baseAssetUrl}img/content/maniac/maniac-size-m.webp, ${baseAssetUrl}img/content/maniac/maniac-size-m@2x.webp 2x`}
+            />
+            <img
+              src={`${baseAssetUrl}img/content/maniac/maniac-size-m.jpg`}
+              srcSet={`${baseAssetUrl}img/content/maniac/maniac-size-m@2x.jpg 2x`}
+              width={HERO_IMAGE_SIZE.width}
+              height={HERO_IMAGE_SIZE.height}
+              alt=""
+            />
+          </picture>
+        </div>
+      ) : null}
       <Header isAuthorized={isAuthorized} onLogout={handleLogout} />
       <Suspense
         fallback={(
@@ -80,7 +101,13 @@ const App = () => {
           <div className="socials">
             <ul className="socials__list">
               <li className="socials__item">
-                <a className="socials__link" href="#" aria-label="Skype">
+                <a
+                  className="socials__link"
+                  href="#"
+                  aria-label="Skype"
+                  target="_blank"
+                  rel="nofollow noopener noreferrer"
+                >
                   <svg
                     className="socials__icon socials__icon--default"
                     width={SOCIAL_ICON_SIZE}
@@ -101,7 +128,13 @@ const App = () => {
               </li>
 
               <li className="socials__item">
-                <a className="socials__link" href="#" aria-label="ВКонтакте">
+                <a
+                  className="socials__link"
+                  href="#"
+                  aria-label="ВКонтакте"
+                  target="_blank"
+                  rel="nofollow noopener noreferrer"
+                >
                   <svg
                     className="socials__icon socials__icon--default"
                     width={SOCIAL_ICON_SIZE}

@@ -32,15 +32,37 @@ body {
   overflow-x: hidden;
 }
 
-.not-found-page{
+.wrapper--not-found-maniacs-card-bg > .header,
+.wrapper--not-found-maniacs-card-bg > footer,
+.wrapper--not-found-maniacs-card-bg main.not-found-page {
   position: relative;
+  z-index: 1;
+}
+
+.app-environment-decor--not-found {
+  position: fixed;
+  z-index: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.app-environment-decor--not-found img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
+.not-found-page{
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   padding-top: 0;
   padding-bottom: 0;
-  min-height: min(780px, calc(100vh - 140px));
 }
 
 .not-found-page__text{
