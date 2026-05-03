@@ -71,3 +71,28 @@ body {
   line-height: 1.5;
 }
 
+.booking-form__field-error {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 600;
+  color: rgba(255, 170, 160, 0.98);
+}
+
+.booking-form__field-error--slots {
+  margin-top: 12px;
+}
+
+.booking-form__field-error--after-checkbox {
+  margin-top: 10px;
+  margin-left: 2px;
+}
+
+.booking-form__agreement-block {
+  display: block;
+}
+
+.booking-form__slot-groups--invalid .custom-radio.booking-form__date .custom-radio__label::after {
+  border-color: rgba(207, 68, 68, 0.85);
+}
+

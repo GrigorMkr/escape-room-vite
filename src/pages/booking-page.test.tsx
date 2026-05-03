@@ -87,6 +87,35 @@ describe('BookingPage', () => {
     createBooking.mockReset();
   });
 
+  it('shows field validation errors after submit when data is incomplete', async () => {
+    getQuest.mockResolvedValueOnce(quest);
+    getQuestBookingPlaces.mockResolvedValueOnce(places);
+
+    act(() => {
+      renderWithProviders(
+        <Routes>
+          <Route path="/quest/:id/booking" element={<BookingPage />} />
+        </Routes>,
+        {
+          route: '/quest/q1/booking',
+          preloadedState: {auth: {isAuthorized: true, status: 'success', error: null}},
+        }
+      );
+    });
+
+    await screen.findByText('Бронирование квеста');
+
+    const user = userEvent.setup();
+    await act(async () => {
+      await user.click(screen.getByRole('button', {name: 'Забронировать'}));
+    });
+
+    expect(await screen.findByText('Введите имя.')).toBeInTheDocument();
+    expect(screen.getByText('Введите телефон.')).toBeInTheDocument();
+    expect(screen.getByText('Необходимо согласие на обработку персональных данных.')).toBeInTheDocument();
+    expect(createBooking).not.toHaveBeenCalled();
+  });
+
   it('formats phone on blur and submits booking', async () => {
     getQuest.mockResolvedValueOnce(quest);
     getQuestBookingPlaces.mockResolvedValueOnce(places);

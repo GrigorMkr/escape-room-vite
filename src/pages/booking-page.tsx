@@ -107,12 +107,7 @@ const BookingPage = () => {
     },
   });
 
-  const formErrors = useMemo(() => ([
-    ...(submitError ? [submitError] : []),
-    ...Object.values(errors)
-      .map((e) => e?.message)
-      .filter((m): m is string => Boolean(m)),
-  ]), [errors, submitError]);
+  const serverSubmitErrors = useMemo(() => (submitError ? [submitError] : []), [submitError]);
 
   useEffect(() => {
     if (!questId) {
@@ -277,7 +272,7 @@ const BookingPage = () => {
             onSubmit={handleFormSubmit}
           >
             <ErrorBox
-              errors={formErrors}
+              errors={serverSubmitErrors}
               ariaLive="polite"
             />
 
@@ -288,8 +283,8 @@ const BookingPage = () => {
                 name="slotId"
                 control={control}
                 rules={{required: 'Выберите время бронирования.'}}
-                render={({field}) => (
-                  <>
+                render={({field, fieldState}) => (
+                  <div className={fieldState.error === undefined ? 'booking-form__slot-groups' : 'booking-form__slot-groups booking-form__slot-groups--invalid'}>
                     <BookingDaySlots
                       title="Сегодня"
                       day="today"
@@ -307,7 +302,12 @@ const BookingPage = () => {
                       slots={selectedPlace?.slots ?? []}
                       onChange={field.onChange}
                     />
-                  </>
+                    {fieldState.error?.message ? (
+                      <p id="booking-slot-error" className="booking-form__field-error booking-form__field-error--slots" role="alert">
+                        {fieldState.error.message}
+                      </p>
+                    ) : null}
+                  </div>
                 )}
               />
             </fieldset>
@@ -315,12 +315,13 @@ const BookingPage = () => {
             <fieldset className="booking-form__section">
               <legend className="visually-hidden">Контактная информация</legend>
 
-              <div className="custom-input booking-form__input">
+              <div className={`custom-input booking-form__input${errors.name ? ' is-invalid' : ''}`}>
                 <label className="custom-input__label" htmlFor="name">Ваше имя</label>
                 <input
                   id="name"
                   type="text"
                   placeholder="Имя"
+                  autoComplete="name"
                   {...register('name', {
                     validate: (v) => {
                       const trimmed = v.trim();
@@ -333,10 +334,17 @@ const BookingPage = () => {
                       return true;
                     },
                   })}
+                  aria-invalid={errors.name ? 'true' : 'false'}
+                  aria-describedby={errors.name ? 'booking-name-error' : undefined}
                 />
+                {errors.name?.message ? (
+                  <span id="booking-name-error" className="booking-form__field-error" role="alert">
+                    {errors.name.message}
+                  </span>
+                ) : null}
               </div>
 
-              <div className="custom-input booking-form__input">
+              <div className={`custom-input booking-form__input${errors.tel ? ' is-invalid' : ''}`}>
                 <label className="custom-input__label" htmlFor="tel">Контактный телефон</label>
                 <input
                   id="tel"
@@ -362,10 +370,17 @@ const BookingPage = () => {
                       return true;
                     },
                   })}
+                  aria-invalid={errors.tel ? 'true' : 'false'}
+                  aria-describedby={errors.tel ? 'booking-tel-error' : undefined}
                 />
+                {errors.tel?.message ? (
+                  <span id="booking-tel-error" className="booking-form__field-error" role="alert">
+                    {errors.tel.message}
+                  </span>
+                ) : null}
               </div>
 
-              <div className="custom-input booking-form__input">
+              <div className={`custom-input booking-form__input${errors.person ? ' is-invalid' : ''}`}>
                 <label className="custom-input__label" htmlFor="person">Количество участников</label>
                 <input
                   id="person"
@@ -386,7 +401,14 @@ const BookingPage = () => {
                       return true;
                     },
                   })}
+                  aria-invalid={errors.person ? 'true' : 'false'}
+                  aria-describedby={errors.person ? 'booking-person-error' : undefined}
                 />
+                {errors.person?.message ? (
+                  <span id="booking-person-error" className="booking-form__field-error" role="alert">
+                    {errors.person.message}
+                  </span>
+                ) : null}
               </div>
 
               <label className="custom-checkbox booking-form__checkbox booking-form__checkbox--children">
@@ -403,22 +425,31 @@ const BookingPage = () => {
               </label>
             </fieldset>
 
-            <label className="custom-checkbox booking-form__checkbox booking-form__checkbox--agreement">
-              <input
-                type="checkbox"
-                {...register('agreement', {
-                  validate: (v) => v || 'Необходимо согласие на обработку персональных данных.',
-                })}
-              />
-              <span className="custom-checkbox__icon">
-                <svg width="20" height="17" aria-hidden="true">
-                  <use xlinkHref={`${import.meta.env.BASE_URL}img/sprite.svg#icon-tick`} />
-                </svg>
-              </span>
-              <span className="custom-checkbox__label">
-                Я&nbsp;согласен с&nbsp;условиями обработки персональных данных и&nbsp;принимаю условия пользовательского соглашения
-              </span>
-            </label>
+            <div className="booking-form__agreement-block">
+              <label className={`custom-checkbox booking-form__checkbox booking-form__checkbox--agreement${errors.agreement ? ' is-invalid' : ''}`}>
+                <input
+                  type="checkbox"
+                  {...register('agreement', {
+                    validate: (v) => v || 'Необходимо согласие на обработку персональных данных.',
+                  })}
+                  aria-invalid={errors.agreement ? 'true' : 'false'}
+                  aria-describedby={errors.agreement ? 'booking-agreement-error' : undefined}
+                />
+                <span className="custom-checkbox__icon">
+                  <svg width="20" height="17" aria-hidden="true">
+                    <use xlinkHref={`${import.meta.env.BASE_URL}img/sprite.svg#icon-tick`} />
+                  </svg>
+                </span>
+                <span className="custom-checkbox__label">
+                  Я&nbsp;согласен с&nbsp;условиями обработки персональных данных и&nbsp;принимаю условия пользовательского соглашения
+                </span>
+              </label>
+              {errors.agreement?.message ? (
+                <p id="booking-agreement-error" className="booking-form__field-error booking-form__field-error--after-checkbox" role="alert">
+                  {errors.agreement.message}
+                </p>
+              ) : null}
+            </div>
 
             <button className="btn btn--accent btn--cta booking-form__submit" type="submit">
               Забронировать
