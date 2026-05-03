@@ -33,12 +33,14 @@ body {
 }
 
 .not-found-page{
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   padding-top: 0;
   padding-bottom: 0;
+  min-height: min(780px, calc(100vh - 140px));
 }
 
 .not-found-page__text{
