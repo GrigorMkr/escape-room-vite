@@ -4,6 +4,7 @@ import {HashRouter} from 'react-router-dom';
 import {Provider} from 'react-redux';
 import './styles/app.css';
 import './styles/quest-card-overrides.css';
+import './styles/responsive.css';
 import App from './App';
 import {store} from './store/store';
 

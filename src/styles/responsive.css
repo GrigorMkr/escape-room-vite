@@ -1,0 +1,184 @@
+/* Layout below academy desktop width (1366px). Desktop untouched at viewport >= 1366px */
+
+@media (max-width: 1365px) {
+  html,
+  body {
+    min-width: 0 !important;
+  }
+
+  html {
+    overflow-x: hidden;
+  }
+
+  .container,
+  .container--size-l,
+  .container--size-s {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .container {
+    --container-offset: clamp(14px, 4vw, 28px);
+  }
+
+  /* Header stacks; remove fixed margins from desktop optical alignment */
+  .header .container {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 18px;
+    justify-items: center;
+    align-items: center;
+    column-gap: 18px;
+  }
+
+  .header__logo {
+    justify-self: center;
+  }
+
+  .header__main-nav {
+    margin-left: 0;
+    justify-self: stretch;
+  }
+
+  .main-nav__list {
+    justify-content: center;
+  }
+
+  .main-nav {
+    --item-margin-left: clamp(18px, 4vw, 36px);
+  }
+
+  .header__side-nav {
+    justify-content: center;
+    padding-right: 0;
+    align-self: center;
+  }
+
+  /* Theme filters: fluid columns instead of locked 6-column grid */
+  .filter__list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* Dividers assumed 6 columns in base CSS; hide for smaller layouts */
+  .filter__item:not(:nth-child(6n+1))::before {
+    display: none;
+    content: none;
+  }
+
+  .cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(12px, 3vw, 24px);
+    row-gap: clamp(20px, 4vw, 32px);
+  }
+
+  .booking-map .map {
+    width: 100%;
+    height: clamp(260px, 52vw, 529px);
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .booking-form__date-inner-wrapper {
+    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+    column-gap: clamp(16px, 5vw, 48px);
+    justify-items: center;
+    max-width: 100%;
+  }
+
+  .quest-page__content {
+    width: 100%;
+    max-width: 700px;
+    margin-right: auto;
+    margin-left: auto;
+    box-sizing: border-box;
+  }
+
+  .quest-page__title {
+    margin-left: 0;
+  }
+
+  .quest-page__subtitle,
+  .quest-page__title {
+    justify-self: start;
+    text-align: left;
+  }
+
+  .login__form {
+    width: 100%;
+    max-width: 735px;
+    margin-right: auto;
+    margin-left: auto;
+    padding-right: clamp(14px, 4vw, 32px);
+    padding-left: clamp(14px, 4vw, 32px);
+    box-sizing: border-box;
+  }
+
+  .contacts {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: stretch;
+    column-gap: 0;
+    row-gap: clamp(28px, 6vw, 48px);
+    padding-right: clamp(14px, 4vw, 34px);
+    padding-left: clamp(14px, 4vw, 24px);
+    box-sizing: border-box;
+  }
+
+  .contacts .map {
+    width: 100%;
+    height: clamp(260px, 52vw, 370px);
+    max-width: 100%;
+    margin-right: auto;
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .filter__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cards-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .title--size-m {
+    font-size: clamp(32px, 9vw, 56px);
+  }
+
+  .title--size-l {
+    font-size: clamp(42px, 11vw, 72px);
+  }
+
+  .title--size-s {
+    font-size: clamp(26px, 7vw, 32px);
+  }
+
+  .main-nav__list {
+    justify-content: center;
+  }
+
+  .main-nav {
+    --item-margin-left: 18px;
+  }
+
+  .booking-form__section {
+    padding-right: clamp(10px, 3vw, 16px);
+    padding-left: clamp(10px, 3vw, 16px);
+  }
+
+  .booking-form__checkbox--children {
+    justify-content: flex-start;
+    padding-right: 0;
+    flex-wrap: wrap;
+  }
+
+  .footer .socials__list {
+    justify-content: center;
+  }
+
+  .not-found-page {
+    padding-right: clamp(12px, 4vw, 24px);
+    padding-left: clamp(12px, 4vw, 24px);
+  }
+}
